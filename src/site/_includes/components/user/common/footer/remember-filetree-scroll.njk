@@ -1,0 +1,56 @@
+<script>
+(function () {
+  const STORAGE_KEY = "qa-questions:filetree-scroll";
+
+  function getFileTreeScroller() {
+    return document.querySelector(".filetree-sidebar > .folder")
+      || document.querySelector(".filetree-sidebar .folder")
+      || document.querySelector(".filetree-wrapper .folder")
+      || document.querySelector(".filetree");
+  }
+
+  function saveScroll() {
+    const scroller = getFileTreeScroller();
+    if (!scroller) return;
+
+    sessionStorage.setItem(STORAGE_KEY, String(scroller.scrollTop));
+  }
+
+  function restoreScroll() {
+    const scroller = getFileTreeScroller();
+    if (!scroller) return;
+
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+
+    if (saved !== null) {
+      const value = Number(saved);
+
+      requestAnimationFrame(() => {
+        scroller.scrollTop = value;
+      });
+
+      setTimeout(() => {
+        scroller.scrollTop = value;
+      }, 100);
+
+      setTimeout(() => {
+        scroller.scrollTop = value;
+      }, 300);
+    }
+
+    scroller.addEventListener("scroll", saveScroll, { passive: true });
+
+    scroller.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", saveScroll);
+    });
+  }
+
+  window.addEventListener("beforeunload", saveScroll);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", restoreScroll);
+  } else {
+    restoreScroll();
+  }
+})();
+</script>
